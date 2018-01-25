@@ -510,3 +510,13 @@
     /*text-align: right !important;*/
     margin-left: 5px !important;
 }
+
+.btnResumen{
+    font-size: 16px;
+    font-weight: 700;
+    color: #fe7b5b;
+    text-align: right;
+}
+.puntero{
+    cursor: pointer;
+}

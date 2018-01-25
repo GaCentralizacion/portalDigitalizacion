@@ -51,7 +51,7 @@
                         </span>
                         <span> 
                             <button type="button" class="btn btn-primary" tooltip="Confirmar documentos" ng-click="Confirmar()" id="btnConfirmar" data-loading-text="Confirmando..."
-                            ng-hide="false" ng-disabled="confirma == 0" ng-show="btnView && !cancelada">
+                            ng-hide="!btnView" ng-disabled="confirma == 0" ng-show="btnView && !cancelada">
                             <!--span class="glyphicon glyphicon-play " aria-hidden="true"-->
                             </span>Confirmar</button>
                         </span>

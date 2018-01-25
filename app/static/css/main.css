@@ -1,2 +1,45 @@
 body {
-  font-family: Source Sans Pro; }
+    font-family: Source Sans Pro;
+}
+
+.fondoInfo {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.puntero {
+    cursor: pointer;
+}
+
+div.dataTables_filter label {
+    display: none;
+}
+
+
+
+.noShow input {
+    display: none
+}
+
+#myModal {
+    z-index: 999999
+}
+
+.unidadesPun tr td:nth-child(3) {
+    cursor: pointer;
+}
+
+.fondoInfoPun {
+    background-color: #D8E3E7;
+    border-color: #D8E3E7;
+}
+
+.fondoInfoOtr {
+    background-color: #CEF6B4;
+    border-color: #CEF6B4;
+}
+
+.vh:hover {
+    cursor: pointer;
+    text-decoration: none;
+}

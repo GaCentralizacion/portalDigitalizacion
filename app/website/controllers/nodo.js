@@ -21,7 +21,22 @@ var nodo = function(conf) {
     };
 };
 
+nodo.prototype.get_header = function(req, res, next) {
 
+    var self = this;
+
+    var params = [
+        { name: 'idUsuario', value: req.query.idUsuario, type: self.model.types.INT },
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING }        
+    ];
+
+    this.model.query('SEL_EXPEDIENTE_ENCABEZADO_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
 nodo.prototype.get_verificaUsuario = function(req, res, next) {
 
     var self = this;
@@ -54,7 +69,6 @@ nodo.prototype.get_cierraNodo = function(req, res, next) {
         });
     });
 };
-
 nodo.prototype.get_bitacoraAccion = function(req, res, next) {
 
     var self = this;
@@ -71,5 +85,107 @@ nodo.prototype.get_bitacoraAccion = function(req, res, next) {
         });
     });
 };
+nodo.prototype.get_all = function(req, res, next) {
+
+    var self = this;
+
+    var params = [
+        { name: 'id_proceso', value: req.query.idproceso, type: self.model.types.INT },
+        { name: 'id_folio', value: req.query.folio, type: self.model.types.STRING },
+        { name: 'id_perfil', value: req.query.perfil, type: self.model.types.INT }        
+    ];
+
+    this.model.query('SEL_NODO_FOLIO_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+
+
+nodo.prototype.get_encabezadoResumen = function(req, res, next) {
+
+    var self = this;
+    var params = [
+        { name: 'folio', value: req.query.idFolio, type: self.model.types.STRING }        
+    ];
+
+    this.model.query('SEL_ENCABEZADO_RESUMEN_CXC_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+
+
+nodo.prototype.get_cargos = function(req, res, next) {
+
+    var self = this;
+
+    var params = [        
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING },
+        { name: 'factura', value: req.query.factura, type: self.model.types.STRING }        
+    ];
+
+    this.model.query('SEL_RESUMEN_COT_CARGOS_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+nodo.prototype.get_abonos = function(req, res, next) {
+
+    var self = this;
+
+    var params = [
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING },
+        { name: 'factura', value: req.query.factura, type: self.model.types.STRING }         
+    ];
+
+    this.model.query('SEL_RESUMEN_COT_ABONOS_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+nodo.prototype.get_anticipos = function(req, res, next) {
+
+    var self = this;
+
+    var params = [
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING },
+        { name: 'factura', value: req.query.factura, type: self.model.types.STRING }         
+    ];
+
+    this.model.query('SEL_RESUMEN_ANTICIPOS_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+
+
+nodo.prototype.get_otrasFacturas = function(req, res, next) {
+
+    var self = this;
+
+    var params = [
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING },
+        { name: 'idCotizacion', value: req.query.cotizacion, type: self.model.types.INT }        
+    ];
+
+    this.model.query('SEL_OTRAS_FACTURAS_CXC', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+
 
 module.exports = nodo;

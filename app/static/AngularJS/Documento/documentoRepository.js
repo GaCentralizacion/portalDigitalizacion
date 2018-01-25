@@ -6,9 +6,9 @@ registrationModule.factory('documentoRepository', function ($http) {
         get: function (id) {
             return $http.get(documentoUrl + '0|' + id);
         },        
-        getByNodo: function (nodo, folio, perfil) {
-            return $http.get(documentoUrl + '1|' + nodo + '|' + folio + '|' + perfil);
-        },
+        //getByNodo: function (nodo, folio, perfil) {
+        //    return $http.get(documentoUrl + '1|' + nodo + '|' + folio + '|' + perfil);
+        //},
         getDocsByFolio: function (folio) {
             return $http.get(documentoUrl + '2|' + folio);
         },
@@ -44,6 +44,47 @@ registrationModule.factory('documentoRepository', function ($http) {
                 params: {
                     folio: folio,
                     idProceso: idProceso
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        },
+        getPermisos: function(idUsuario, idAccion) {
+            return $http({
+                url: documentoApiUrl + 'permisos/',
+                method: "GET",
+                params: {
+                    idUsuario: idUsuario,
+                    idAccion: idAccion
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        },
+        getByNodo: function(nodo, folio, perfil) {
+            return $http({
+                url: documentoApiUrl + 'byNodo/',
+                method: "GET",
+                params: {
+                    nodo: nodo,
+                    folio: folio,
+                    perfil:perfil
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        },
+          getPdfArraysPun: function(tipo,factura,nodo) {
+            return $http({
+                url: documentoApiUrl + 'pdfArraysPun/',
+                method: "GET",
+                params: {
+                    tipo:tipo,
+                    factura: factura,
+                    nodo:nodo
                 },
                 headers: {
                     'Content-Type': 'application/json'

@@ -7,8 +7,8 @@ var request = require('request');
 
 
 var Factura = function(conf) {
-    console.log('conf: ')
-    console.log(conf)    
+    //console.log('conf: ')
+    //console.log(conf)    
 
     this.conf = conf || {};
 

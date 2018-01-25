@@ -1,4 +1,4 @@
-﻿registrationModule.controller("documentoController", function($scope, $rootScope, utils, localStorageService, alertFactory, documentoRepository, facturaRepository) {
+﻿registrationModule.controller("documentoController", function($scope, $rootScope, utils, localStorageService, alertFactory, documentoRepository, facturaRepository,nodoRepository,globalFactory) {
 
     //Propiedades
     //Desconfiguramos el clic izquierdo en el frame contenedor de documento
@@ -9,7 +9,6 @@
 
     //Métodos
     $scope.VerDocumento = function(doc) {
-        $('#loading').modal('show');
         //Inicia el Proceso 1 dependiendo de si eligieron CXP=2 CXC=1
         //BEGIN Consigo el tipo de proceso para mandarlo al SP que inserta la imagen
         $scope.idProceso = doc.idProceso;
@@ -27,7 +26,6 @@
                         var titulo = doc.folio + ' :: ' + doc.descripcion;
                         var iframe = '<div id="hideFullContent"><iframe id="ifDocument" src="' + pdf_link + '" frameborder="0"></iframe> </div>';
                         var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf_link + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf_link + '">to the PDF!</a></p></object> </div>';
-                        $('#loading').modal('hide');
                         $.createModal({
                             title: titulo,
                             message: iframe,
@@ -41,7 +39,6 @@
                         var titulo = doc.folio + ' :: ' + doc.descripcion;
                         var iframe = '<div id="hideFullContent"><div id="hideFullMenu"> </div><iframe id="ifDocument" src="' + pdf_link + '" frameborder="0"></iframe> </div>';
                         var iframe = '<div id="hideFullContent"><div id="hideFullMenu" onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf_link + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf_link + '">to the PDF!</a></p></object> </div>';
-                        $('#loading').modal('hide');
                         $.createModal({
                             title: titulo,
                             message: iframe,
@@ -58,7 +55,6 @@
                         var titulo = doc.folio + ' :: ' + doc.descripcion;
                         var iframe = '<div id="hideFullContent"><div id="hideFullMenu"> </div><iframe id="ifDocument" src="' + pdf_link + '" frameborder="0"></iframe> </div>';
                         var iframe = '<div id="hideFullContent"><div id="hideFullMenu" onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf_link + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf_link + '">to the PDF!</a></p></object> </div>';
-                        $('#loading').modal('hide');
                         $.createModal({
                             title: titulo,
                             message: iframe,
@@ -75,21 +71,20 @@
                             $scope.obtengoModalArrays(result, titulo, 'Póliza');
 
                         });
-                    }else if(doc.idDocumento == 64 || doc.idDocumento == 68){
+                    }else if(doc.idDocumento == 64 || doc.idDocumento == 68 || doc.idDocumento == 67){
                         $scope.getPolizas(doc);
-                    } 
+                    }  
                     else {
                         //Mando a llamar al WebService
                         documentoRepository.getPdf(doc.tipo, doc.folio, doc.idNodo).then(function(d) {
                             //Creo la URL
                             var pdf = URL.createObjectURL(utils.b64toBlob(d.data[0].arrayB, "application/pdf"))
-                            var pdf_link = doc.existeDoc;
+                            var pdf_link = pdf;
                             var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
                             var titulo = doc.folio + ' :: ' + doc.descripcion;
                             //Mando a llamar la URL desde el div sustituyendo el pdf
                             /////////  $("<object id='pdfDisplay' data='" + pdf + "' width='100%' height='400px' >").appendTo('#pdfContent');
                             var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
-                            $('#loading').modal('hide');
                             $.createModal({
                                 title: titulo,
                                 message: iframe,
@@ -130,7 +125,6 @@
                         var titulo = doc.folio + ' :: ' + doc.descripcion;
                         var iframe = '<div id="hideFullContent"><iframe id="ifDocument" src="' + pdf_link + '" frameborder="0"></iframe> </div>';
                         var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf_link + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf_link + '">to the PDF!</a></p></object> </div>';
-                        $('#loading').modal('hide');
                         $.createModal({
                             title: titulo,
                             message: iframe,
@@ -144,7 +138,6 @@
                         var titulo = doc.folio + ' :: ' + doc.descripcion;
                         var iframe = '<div id="hideFullContent"><div id="hideFullMenu"> </div><iframe id="ifDocument" src="' + pdf_link + '" frameborder="0"></iframe> </div>';
                         var iframe = '<div id="hideFullContent"><div id="hideFullMenu" onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf_link + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf_link + '">to the PDF!</a></p></object> </div>';
-                        $('#loading').modal('hide');
                         $.createModal({
                             title: titulo,
                             message: iframe,
@@ -206,7 +199,6 @@
                                     console.log(pdf)
                                     //var pdf2=pdf.split('blob:');
                                     var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="application/pdf" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
-                                    $('#loading').modal('hide');
                                     $.createModal({
                                         title: doc.folio + ' :: ' + doc.descripcion,
                                         message: iframe,
@@ -215,7 +207,7 @@
                                     });
                                 } else {
                                     var iframe = '<div id="hideFullContent"><div ng-controller="documentoController"><h4 class="filesInvoce">' + d.data.mensajeresultadoField + '</h4></div>  </div>';
-                                    $('#loading').modal('hide');
+
                                     //$("" + d.data.mensajeresultadoField + "</h2>").appendTo('#myModal');
                                     $.createModal({
                                         title: doc.folio + ' :: ' + doc.descripcion,
@@ -228,7 +220,21 @@
 
                         }
 
-                    } else {
+                    }else if(doc.tipo=='PUN'){
+                        //Mando a llamar al WebService 
+                         //  documentoRepository.getPdfArrays(doc.tipo, doc.folio, 0).then(function(d) {
+                          // $scope.obtengoModalArraysCxc(d, doc, iframe);
+                     //  });
+                   //   alert(1);
+  			$rootScope.tipoPun=doc.tipo;
+                    	  nodoRepository.getEncabezadoResumen($rootScope.folio).then(function(result){
+                                          $rootScope.encabezadoResumenPun = result.data;
+                                          $('#modalPun').modal('show');
+                                                globalFactory.filtrosTabla("unidadesPun", "Unidades", 5);
+                                    });
+                    }else{
+
+
                         //Mando a llamar al WebService
                         documentoRepository.getPdf(doc.tipo, doc.folio, 0).then(function(d) {
                             //Creo la URL
@@ -239,7 +245,6 @@
                             //Mando a llamar la URL desde el div sustituyendo el pdf
                             /////////  $("<object id='pdfDisplay' data='" + pdf + "' width='100%' height='400px' >").appendTo('#pdfContent');
                             var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
-                            $('#loading').modal('hide');
                             $.createModal({
                                 title: titulo,
                                 message: iframe,
@@ -258,6 +263,28 @@
 
         } //Fin de Proceso 2
     };
+
+
+   $rootScope.verPun=function(doc){
+    
+  
+    documentoRepository.getPdfArraysPun($rootScope.tipoPun,doc.factura, 0).then(function(d) {
+        arregloBytes = d.data.arrayBits.base64Binary;
+
+              var pdf = URL.createObjectURL(utils.b64toBlob(arregloBytes, "application/pdf"))
+                            var pdf_link = pdf;
+                            var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
+                            var titulo ='Factura  ::' + doc.factura;
+                            var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
+                            $.createModal({
+                                title: titulo,
+                                message: iframe,
+                                closeButton: false,
+                                scrollable: false
+                            });
+                     });
+
+};
 
     $rootScope.obtieneTypeAplication = function(ruta) {
 
@@ -380,6 +407,17 @@
     $scope.ShowCargar = function(doc) {
         if (doc.idDocumento == 15 && window.location.pathname != '/factura') {
             location.href = '/factura?id=' + doc.folio + '&employee=' + $rootScope.currentEmployee + '&perfil=' + $rootScope.empleado.idPerfil + '&proceso=' + doc.idProceso;
+        }else if (doc.idDocumento == 67) {
+            documentoRepository.getPermisos($rootScope.currentEmployee, 8).then(function(result) {
+                var permisoUsuario = result.data[0];
+                if (permisoUsuario.respuesta == 1) {
+                    $('#frameUpload').attr('src', '/uploader');
+                    $('#modalUpload').modal('show');
+                    $rootScope.currentUpload = doc;
+                }else if(permisoUsuario.respuesta == 0){
+                    alertFactory.warning('El usuario no tiene permisos para subir documento')
+                }
+            });
         } else {
             $('#frameUpload').attr('src', '/uploader');
             $('#modalUpload').modal('show');
@@ -461,7 +499,6 @@
                         });
                     }
                 }, 2000);
-                $('#loading').modal('hide');
                 //}
             });
         });
@@ -499,7 +536,6 @@
         });
 
         iframe = iframe + '</div></div>';
-        $('#loading').modal('hide');
         $.createModal({
             title: titulo,
             message: iframe,
@@ -537,16 +573,52 @@
     $scope.muestraFactura = function(id) {
 
     };
+    
+ $scope.obtengoModalArraysCxc = function(arrays, titulo, nombreTab) {
+        $scope.arregloBytes = arrays.data;
+        var iframe = '<div id="hideFullContent"><div><ul class="nav nav-tabs"> ';
+        $scope.pdf = [];
+        angular.forEach($scope.arregloBytes, function(value, key) {
+            var consecutivo = key + 1;
+            $scope.pdf.push({
+                urlPdf: URL.createObjectURL(utils.b64toBlob(value, "application/pdf")),
+                id: key + 1
+            });
+
+        });
+
+        angular.forEach($scope.pdf, function(value, key) {
+            if (key == 0) {
+                iframe = iframe + '<li class="active"><a data-toggle="tab" href="#divMenu' + key + '" target="_self">Unidad ' +(key + 1) + ' </a></li>';
+            } else {
+                iframe = iframe + '<li><a data-toggle="tab" href="#divMenu' + key + '" target="_self">Unidad ' +(key + 1) + ' </a></li>';
+            }
+        });
+
+        iframe = iframe + '</ul></div> <div class="tab-content">';
+
+        angular.forEach($scope.pdf, function(value, key) {
+
+            if (key == 0) {
+                iframe = iframe + '<div class="tab-pane active" id="divMenu' + key + '"><iframe src="' + value.urlPdf + '" width="560" height="350" allowfullscreen="allowFullScreen"></iframe></div>';
+            } else {
+                iframe = iframe + '<div class="tab-pane" id="divMenu' + key + '"><iframe src="' + value.urlPdf + '" width="560" height="350" allowfullscreen="allowFullScreen"></iframe></div>';
+            }
+        });
+
+        iframe = iframe + '</div></div>';
+        $.createModal({
+            title: titulo,
+            message: iframe,
+            closeButton: false,
+            scrollable: false
+        });
+    };
+
+
     $scope.getPolizas = function(doc) {
-        var titulo = '';
-        documentoRepository.getPdfArrays(doc.tipo, doc.folio, doc.idNodo).then(function(result) {
-            console.log(result, 'PDF ARRAYS')
-            if(doc.tipo == 'POG'){
-                titulo = 'PÓLIZAS  :: ' + doc.folio;
-            }else if(doc.tipo == 'PPM'){
-                titulo = 'PÓLIZAS DE PAGO MANUAL  :: ' + doc.folio;
-            }            
-            $scope.obtengoModalArrays(result, titulo, 'Póliza');
+        documentoRepository.getPdfArrays(doc.tipo, doc.folio, doc.idNodo).then(function(result) {           
+            $scope.obtengoModalArrays(result, doc.nombreDocumento, doc.nombreDocumento);
 
         });
     };

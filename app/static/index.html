@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
@@ -10,6 +10,9 @@
   <title>Digitalización</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Expires" content="Sat, 01 Dec 2001 00:00:00 GMT">
 
   <!-- Libreria de Google Fonts -->
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900italic' rel='stylesheet' type='text/css'>
@@ -35,6 +38,10 @@
   <link rel="stylesheet" type="text/css" href="css/sidebar/component.css" />
   <link rel="stylesheet" type="text/css" href="css/sidebar/body.css" />
   <script src="js/sidebar/modernizr.custom.js"></script>
+
+  <!-- DataTables -->
+  <link href="plugins/datatables/media/css/dataTables.bootstrap.css" rel="stylesheet">
+  <link href="plugins/datatables/extensions/Responsive/css/dataTables.responsive.css" rel="stylesheet">
 
   <base href='/'>
 </head>
@@ -234,6 +241,8 @@
                 </a>
                 <ul class="dropdown-menu">
                   <li class="seleccionable"><a ng-click="Salir()">Salir</a></li>
+  		  <!-- <li ng-show="idProceso > 0" class="seleccionable"><a ng-click="verDiccionario(1)">Diccionario Nodos</a></li>
+                  <li ng-show="idProceso > 0" class="seleccionable"><a ng-click="verDiccionario(2)">Diccionario Status</a></li>-->
                 </ul>
               </li>
             </ul>
@@ -245,13 +254,32 @@
 
       <div ng-view></div>
     </div>
-
+ <div  ng-show="idProceso > 0" id="myButton" style="position: fixed;top: 40%;right: 0;">
+   <button type="button" class="btn btn-primary btn-block glyphicon glyphicon-book">&nbsp;Diccionarios</button>
+</div>
+<div id="myDiv" style="position: fixed;top: 43%;width:50px;height: 50px;border-color: black;right: 0;margin-right: 30px;display: none ">
+        <span><a class="vh" ng-click="verDiccionario(1)">Nodos</a></span>
+        <span><a class="vh" ng-click="verDiccionario(2)">Status</a></span>
+</div> 
+<style type="text/css">.vh:hover{cursor:pointer;text-decoration:none;}</style>
   </div><!-- /st-pusher -->
 </div><!-- /st-container -->
 
 <!-- Usuario autenticado -->
  <input type="hidden" id="lgnUser" value="[[ user.idUsuario ]]">
+<script>
+$(document).ready(function(){
+  $("#myButton").click(function () {
+$('#myDiv').toggle('slide' );
 
+  });
+
+  $(".vh").click(function () {
+$('#myDiv').hide();
+
+  });
+});
+</script>
 <script type="text/javascript">
 var nameDocument = '';
 function refresh() {
@@ -416,7 +444,7 @@ function getName(){
 
 
 <!--LQMA add 25012016 muestra links de navegacion cuando son mas de una remision -->
-<div class="modal fade" id="navegaLinks" ng-controller="nodoController">
+<div class="modal fade" id="navegaLinks" ng-controller="nodoController" style="overflow: scroll;">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
@@ -448,7 +476,7 @@ function getName(){
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal fade-->
 
-<div class="modal fade" id="navegaLinks2" ng-controller="nodoController">
+<div class="modal fade" id="navegaLinks2" ng-controller="nodoController" style="overflow: scroll;">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
@@ -533,7 +561,415 @@ function getName(){
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal fade-->
+
+
+<!-- /.modal -->
+<div class="modal fade" id="modalDiccionariocxp" ng-controller="searchController">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Diccionario de {{ tipodic }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="tableContent">
+          <table class="table table-striped table-condensed table-hover">
+            <thead>
+              <tr>
+          
+                <th>Nombre</th>
+                <th>Nombre corto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="diccionario in listaDic">
+                     
+                 <td> {{ diccionario.nombreSit}} </td>
+                 <td> {{ diccionario.nombreCorto}} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Salir</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="modal fade" id="modalDiccionario" ng-controller="searchController">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Diccionario de {{ tipodic }}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="tableContent">
+                    <table class="table table-striped table-condensed table-hover">
+                        <thead>
+                            <tr>
+                               
+                                <th>Nombre</th>
+                                <th>Nodo</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="diccionario in listaDic">
+                               
+                                <td> {{ diccionario.nombre }} </td>
+                                <td> {{ diccionario.nodo }} </td>
+                                <td> {{ diccionario.descripcion }} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Salir</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<div class="modal fade" id="modalDiccionariocxc" ng-controller="searchController">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Diccionario de {{ tipodic }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="tableContent">
+          <table class="table table-striped table-condensed table-hover">
+            <thead>
+              <tr>
+                
+                <th>Nombre</th>
+                <th>Nombre Corto</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="diccionario in listaDic">
+                     
+                 <td> {{ diccionario.nombreSit }} </td>
+                 <td> {{ diccionario.nombreCorto }} </td>
+                <td> {{ diccionario.descripcion }} </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Salir</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <!--END Modal para cuentas por cobrar :D -->
+
+<!-- Modal Resumen de la cotización -->
+<div class="modal fade" id="resumen" ng-controller="nodoController">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center"><strong> {{expedienteCotizacion.folio}} </strong></h4>         
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="panel panel-default">
+              <div class="panel-body fondoInfo">
+                <div class="col-sm-6"> 
+                  <label>Id Cliente: </label><span class=""> {{expedienteCotizacion.esPlanta}} </span>
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Cliente: </label><span class=""> {{expedienteCotizacion.nombreUsuario}} </span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Número de Cotización: </label><span class=""> {{encabezadoResumen["0"].ucu_idcotizacion}} </span> 
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Fecha: </label><span class=""> {{encabezadoResumen["0"].ucu_fechacotiza | date:'dd/MM/yyyy'}} </span>
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Cantidad de Unidades: </label><span class=""> {{encabezadoResumen["0"].numeroUnidades}} </span>
+                </div> 
+              </div>
+            </div>
+          </div>         
+          <div class="col-sm-12" ng-show="busquedaResumen"> 
+              <div class="table-responsive">
+                <table class="table table-condensed table-hover cotizacionRecumen">
+                  <thead>
+                    <tr>
+                      <th>Número de Serie: </th>
+                      <th>Factura: </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="unidad in encabezadoResumen" ng-click ="buscarResumen(unidad)" class="puntero">
+                      <td> {{ unidad.numeroSerie }} </td>        
+                       <td> {{ unidad.factura }} </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </form>
+             
+          </div> 
+          <div class="col-sm-12 space">
+            <div class="panel panel-info" ng-show="verResumen">
+              <div class="panel-heading" ng-click="pruebaMostrar()"><!--  puntero -->
+                <div class="row">
+                <p class="col-sm-6">{{cargos.tipoFactura}}: <strong> {{cargos.factura}}</strong></p>
+                <p class="col-sm-6">Número de Serie: <strong> {{cargos.numeroSerie}}</strong></p>
+                <p class="col-sm-6">Fecha: <strong> {{cargos.fecha}}</strong></p>
+                <p class="col-sm-6">Total: <strong> {{cargos.total | currency}}</strong></p>
+                </div>
+              </div>
+              <!-- <div class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo"> -->
+              <div class="panel-body"> 
+                <div class="col-sm-12">
+                  <p class="title"><strong>Movimientos</strong></p>
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Documento</th>
+                        <th>Referencia</th>
+                        <th>Fecha</th>
+                        <th class="text-right">Cargo</th>
+                        <th class="text-right">Abono</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="abono in abonos">
+                        <td> {{ abono.tipoPago }} </td> 
+                        <td> {{ abono.referencia}} </td>       
+                        <td> {{ abono.fecha }} </td>
+                        <td class="text-right"> {{ abono.cargo | currency }} </td>
+                        <td class="text-right"> {{ abono.abono | currency }} </td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <td colspan="3" class="text-right"><strong>Total</strong></td>
+                      <td class="text-right">{{totalRCargos | currency }}</td>
+                      <td class="text-right">{{totalAbonos | currency }}</td>
+                    </tfoot>
+                  </table>
+                </div>
+                <div class="col-sm-12" ng-show="muestraAnticipo">
+                  <p class="title"><strong>Anticipos no aplicados</strong></p>
+                  <table class="table table-condensed">
+                    <thead>
+                      <tr>
+                        <th>Documento</th>
+                        <th>Fecha</th>
+                        <th class="text-right">Importe</th>
+                        <th class="text-right">Saldo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="anticipo in anticipos">
+                        <td> {{ anticipo.tipoPago }} </td>        
+                        <td> {{ anticipo.fecha }} </td>
+                        <td class="text-right"> {{ anticipo.abono | currency }} </td>
+                        <td class="text-right"> {{ anticipo.saldo | currency }} </td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <td colspan="3" class="text-right"><strong>Total</strong></td>
+                      <td class="text-right">{{totalAnticipos | currency }}</td>
+                    </tfoot>
+                  </table>
+                </div>  
+              </div>
+            <!-- </div> -->
+            </div>                     
+          </div>    
+        </div>      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="limpiaModal()">Salir</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal resumen de la cotizacion -->
+
+
+<div class="modal fade" id="modalOtrasFacturas" ng-controller="nodoController">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center"><strong>Otras facturas disponibles :: {{expedienteCotizacion.folio}} </strong></h4>         
+      </div>
+      <div class="modal-body">
+      
+      <ul class="nav nav-tabs">
+          <li class="active">
+            <a data-toggle="tab" class="btn btn-default"  ng-click="SearchViewF(1);">Unidades</a>
+          </li>
+          <li>
+            <a data-toggle="tab" class="btn btn-default" ng-click="SearchViewF(2);">Accesorios</a>
+          </li>
+          <li>
+            <a data-toggle="tab" class="btn btn-default" ng-click="SearchViewF(3);">Ordenes de Servicio</a>
+          </li>
+          <li>
+            <a data-toggle="tab" class="btn btn-default" ng-click="SearchViewF(4);">Tramites</a>
+          </li>
+          <li>
+            <a data-toggle="tab" class="btn btn-default" ng-click="SearchViewF(5);">Otros Conceptos</a>
+          </li> 
+      </ul> 
+
+
+   <ul ng-show="unidadesF" style="padding: 0px;">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="panel panel-default">
+              <div class="panel-body fondoInfoOtr">
+                <div class="col-sm-6"> 
+                  <label>Id Cliente: </label><span class=""> {{expedienteCotizacion.esPlanta}} </span>
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Cliente: </label><span class=""> {{expedienteCotizacion.nombreUsuario}} </span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Número de Cotización: </label><span class=""> {{encabezadoResumen["0"].ucu_idcotizacion}} </span> 
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Fecha: </label><span class=""> {{encabezadoResumen["0"].ucu_fechacotiza | date:'dd/MM/yyyy'}} </span>
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Cantidad de Unidades: </label><span class=""> {{encabezadoResumen["0"].numeroUnidades}} </span>
+                </div> 
+              </div>
+            </div>
+          </div>         
+          <div class="col-sm-12" > 
+              <div class="table-responsive">
+                <table class="table table-condensed table-hover otrasFact">
+                  <thead>
+                    <tr>
+                      <th>Factura: </th>
+                      <th style="width:200px !important">Número de Serie: </th>
+                      <th  class="noShow">SubTotal:</th>
+                      <th  class="noShow">Iva: </th>
+                      <th  class="noShow">Total: </th>
+                      <th  class="noShow">Ver: </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="cotizacion in otrasFacturasRes"  >
+                       <td> {{ cotizacion.idFactura }} </td>
+                       <td> {{ cotizacion.numSerie }} </td>        
+                       <td> $ {{ cotizacion.subTotal }} </td>        
+                       <td> $ {{ cotizacion.iva }} </td>
+                       <td> $ {{ cotizacion.total }} </td>
+                       <td class="puntero" ng-click="generaFactura(cotizacion)" style="text-align: center;"> <span class="glyphicon glyphicon-file" aria-hidden="true" </span> </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div> 
+        </div>      
+      </ul> 
+
+      <ul ng-show="servicio" style="padding: 0px;">
+         
+      </ul> 
+<ul ng-show="refacciones" style="padding: 0px;">
+       
+      </ul> 
+<ul ng-show="tramites" style="padding: 0px;">
+       
+      </ul> 
+<ul ng-show="otros" style="padding: 0px;">
+       
+      </ul> 
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="limpiaModal()">Salir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<div class="modal fade" id="modalPun" ng-controller="documentoController">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center" ><strong>Pedido de Unidades ::  {{expedientePun.folio}} </strong></h4>         
+      </div>
+      <div class="modal-body">
+        <div class="row">
+              <div class="col-sm-12">
+            <div class="panel panel-default">
+              <div class="panel-body fondoInfoPun">
+                <div class="col-sm-6"> 
+                  <label>Id Cliente: </label><span class=""> {{expedientePun.esPlanta}} </span>
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Cliente: </label><span class=""> {{expedientePun.nombreUsuario}} </span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Número de Cotización: </label><span class=""> {{encabezadoResumenPun["0"].ucu_idcotizacion}} </span> 
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Fecha: </label><span class=""> {{encabezadoResumenPun["0"].ucu_fechacotiza | date:'dd/MM/yyyy'}} </span>
+                </div>
+                <div class="col-sm-6"> 
+                  <label>Cantidad de Unidades: </label><span class=""> {{encabezadoResumenPun["0"].numeroUnidades}} </span>
+                </div> 
+              </div>
+            </div>
+          </div> 
+          <div class="col-sm-12" > 
+              <div class="table-responsive">
+                <table class="table table-condensed table-hover unidadesPun">
+                  <thead>
+                    <tr>
+                      <th>Número de Serie: </th>
+                     <th>Factura: </th>
+                      <th class="noShow">Ver: </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="pun in encabezadoResumenPun"  >
+                      <td> {{ pun.numeroSerie }} </td>  
+                      <td> {{ pun.factura }} </td>        
+                      <td ng-click="verPun(pun)" style="text-align: center;" class="puntero"> <span class="glyphicon glyphicon-file" aria-hidden="true" </span> </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+           </div>    
+        </div>      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="limpiaModal()">Salir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 
 <!--Interface de usuario-->
 <script src="js/toastr.min.js"></script>
@@ -563,6 +999,7 @@ function getName(){
 
 <!--librerias de componenetes-->
 <script src="AngularJS/alertFactory.js"></script>
+<script src="AngularJS/globalFactory.js"></script>
 
 <!-- LMS Agregado Libreria Utils -->
 <script src="AngularJS/utils.js"></script>
@@ -591,6 +1028,12 @@ function getName(){
 <!--Sidebars-->
 <script src="js/sidebar/classie.js"></script>
 <script src="js/sidebar/sidebarEffects.js"></script>
+<!--Responsive table-->
+<script src="js/datatables/datatables.min.js"></script>
+<script src="plugins/datatables/media/js/jquery.dataTables.js"></script>
+<script src="plugins/datatables/media/js/dataTables.bootstrap.js"></script>
+<script src="plugins/datatables/extensions/Responsive/js/dataTables.responsive.min.js"></script>
+<script src="js/datatables/tables-datatables.js"></script>
 
 </body>
 </html>

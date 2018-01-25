@@ -1,4 +1,4 @@
-registrationModule.controller("nodoController", function($scope, $rootScope, $location, localStorageService, alertFactory, nodoRepository, documentoRepository, alertaRepository, empleadoRepository, searchRepository) {
+﻿registrationModule.controller("nodoController", function($scope, $rootScope, $location,utils, localStorageService, alertFactory, nodoRepository, documentoRepository, alertaRepository, empleadoRepository, searchRepository,globalFactory) {
 
     //Propiedades
     $scope.isLoading = false;
@@ -24,6 +24,7 @@ registrationModule.controller("nodoController", function($scope, $rootScope, $lo
         empleadoRepository.get($rootScope.currentEmployee)
             .success(getEmpleadoSuccessCallback)
             .error(errorCallBack);
+  $scope.showBtnOtrasFac=false;
 
     };
     //Obtengo los datos del usuario que genero la orden de compra
@@ -84,9 +85,38 @@ registrationModule.controller("nodoController", function($scope, $rootScope, $lo
             //Obtengo el encabezado del expediente                
 
             if ($rootScope.folio) {
-                nodoRepository.getHeader($rootScope.folio, $rootScope.empleado.idUsuario)
-                    .success(obtieneHeaderSuccessCallback)
-                    .error(errorCallBack);
+               nodoRepository.getHeader($rootScope.folio, $rootScope.empleado.idUsuario).then(function(result){
+                    //LQMA variable controla inicio nodos
+                    $scope.iniciaNodos = 0;
+                    //Asigno el objeto encabezado
+                    $scope.expediente = result.data[0];
+      $rootScope.expedientePun = result.data[0];
+
+                    console.log($scope.expediente);
+                    //alert('Obtiene Header SUCCESS');
+                    //LQMA la propiedad $scope.expediente.nodoActual se actualiza con el data, checar si viene de otro link para poner en el nodo seleccionado
+                    if ($scope.navBusFolio == 1 && $scope.expediente.esPlanta != 1) //si viene de busqueda
+                          $scope.expediente.nodoActual = $scope.nodNavBusqueda;
+
+                    $scope.navBusFolio = 0;
+                    //LQMAexpediente.estatusExpediente
+                   // alert($scope.expediente.estatusExpediente);
+
+                    if ($scope.expediente != null) {
+                    //Obtengo la información de los nodos    
+                    //////////BEGIN Agregar por que $rootScope.idProceso=undefined cuando regreso de factura      
+                        if ($rootScope.idProceso == undefined) {
+                        $rootScope.idProceso = getParameterByName('proceso');
+                        }
+                    //////////END Agregar por que $rootScope.idProceso=undefined cuando regreso de factura
+                        nodoRepository.getAll($rootScope.folio, $rootScope.idProceso, $rootScope.empleado.idPerfil)
+                        .success(obtieneNodosSuccessCallback)
+                        .error(errorCallBack);
+                    } else
+                        alertFactory.error('No existe información para este expediente.');
+                    });
+                    // .success(obtieneHeaderSuccessCallback)
+                    // .error(errorCallBack);
             } else {
                 $('#slide').click();
                 //angular.element('#slide').triggerHandler('click');
@@ -436,6 +466,10 @@ registrationModule.controller("nodoController", function($scope, $rootScope, $lo
         alertaRepository.getByNodo($scope.idProceso, $scope.currentNode.id, $scope.currentNode.folio)
             .success(getAlertasSuccessCallback)
             .error(errorCallBack);
+
+
+             if($scope.currentNode.id>=3)
+                $scope.showBtnOtrasFac=true;
     };
 
     //Carga los documentos del nodo activo
@@ -795,4 +829,157 @@ registrationModule.controller("nodoController", function($scope, $rootScope, $lo
 
         });
     };
+
+    //-----------------------------------------------------------
+    //--Obtengo la información para la modal del Recumen de Cotización
+    //-----------------------------------------------------------
+    $scope.resumenCotizacion = function(){
+        $scope.limpiaModal();        
+        $('#resumen').modal('show');
+        nodoRepository.getEncabezadoResumen($rootScope.folio).then(function(result){
+            $rootScope.encabezadoResumen = result.data;
+            globalFactory.filtrosTabla("cotizacionRecumen", "Cotizaciones", 3);
+            if($rootScope.encabezadoResumen.length == 1){
+                $rootScope.buscarResumen($rootScope.encabezadoResumen[0])
+                $rootScope.busquedaResumen=false;
+            }
+        });
+        $rootScope.expedienteCotizacion = $scope.expediente;
+    };
+    $rootScope.buscarResumen = function(factura){
+        $rootScope.facturaBusca = factura.factura;
+        $rootScope.numeroSerieBusca = factura.numeroSerie;
+        nodoRepository.getResumenCargo(factura.factura, $rootScope.folio).then(function(result){
+            $rootScope.cargos = result.data[0];
+            $rootScope.totalCargos=0;
+            angular.forEach($rootScope.cargos, function(value, key) {
+              $rootScope.totalCargos = $rootScope.totalCargos + value.total;
+            });
+            console.log($rootScope.totalCargos,'Soy el total')
+            console.log($rootScope.cargos)
+            nodoRepository.getResumenAbono(factura.factura, $rootScope.folio).then(function(result){
+                $rootScope.abonos = result.data;
+                $rootScope.totalAbonos=0;
+                $rootScope.totalRCargos = 0;
+                angular.forEach($rootScope.abonos, function(value, key) {
+                  $rootScope.totalAbonos = $rootScope.totalAbonos + value.abono;
+                  $rootScope.totalRCargos = $rootScope.totalRCargos + value.cargo;
+                });
+                if($rootScope.cargos.length !=0 || $rootScope.abonos.length !=0){
+                    $rootScope.verResumen=true;
+                }
+                console.log($rootScope.cargos)
+
+            });
+            nodoRepository.getResumenAnticipos(factura.factura, $rootScope.folio).then(function(ant){
+                $rootScope.muestraAnticipo = false;
+                $rootScope.totalAnticipos=0;
+                $rootScope.anticipos=ant.data;
+                angular.forEach($rootScope.anticipos, function(value, key) {
+                  $rootScope.totalAnticipos = $rootScope.totalAnticipos + value.saldo;
+                });
+                if($rootScope.anticipos.length != 0){
+                    $rootScope.muestraAnticipo = true;
+                }
+            });
+        });
+    };
+    $scope.limpiaModal=function(){
+        $rootScope.cargos = null;
+        $rootScope.abonos = null;
+        $rootScope.encabezadoResumen= null;
+        $rootScope.verResumen =false;
+        $rootScope.busquedaResumen=true;
+        //$('.collapse').collapse('hide');
+    };
+
+
+
+
+ //DVR
+     $scope.verOtrasFacturas = function() {
+         $rootScope.unidadesF=true;
+         $rootScope.expedienteCotizacion=$scope.expediente;
+            nodoRepository.getEncabezadoResumen($rootScope.folio).then(function(result){
+            $rootScope.encabezadoResumen = result.data;
+        
+        nodoRepository.getOtrasFacturas($rootScope.folio,$rootScope.encabezadoResumen[0].ucu_idcotizacion).then(function(result){
+                 $rootScope.otrasFacturasRes = result.data;
+                            globalFactory.filtrosTabla("otrasFact", "Facturas ", 5);
+                   $('#modalOtrasFacturas').modal('show');
+
+            });
+        });
+           
+    };
+
+  $scope.generaFactura = function(elemnto) {
+        documentoRepository.getPdfWS(elemnto.rfc, '', elemnto.serie, elemnto.folio).then(function(d) {
+                           arregloBytes = d.data.pdfField;
+
+              var pdf = URL.createObjectURL(utils.b64toBlob(arregloBytes, "application/pdf"))
+                            var pdf_link = pdf;
+                            var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
+                            var titulo ='Factura  ::' + elemnto.folio;
+                            var iframe = '<div id="hideFullContent"><div  ng-controller="nodoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
+                            $.createModal({
+                                title: titulo,
+                                message: iframe,
+                                closeButton: false,
+                                scrollable: false
+                            });
+                            });
+
+  };
+    
+
+    $scope.SearchViewF = function(tipo) {
+                    switch (tipo) {
+                            case 1:
+                                $scope.unidadesF=true;
+                                $scope.servicioF=false;
+                                $scope.refacciones=false;
+                                $scope.tramites=false;
+                                $scope.otros=false;
+                                
+                                break;
+
+                            case 2:
+                             $scope.unidadesF=false;
+                                $scope.servicioF=true;
+                                $scope.refacciones=false;
+                                $scope.tramites=false;
+                                $scope.otros=false;
+                               
+                                break;
+                            case 3:
+                             $scope.unidad=false;
+                                $scope.servicio=false;
+                                $scope.refacciones=true;
+                                 $scope.tramites=false;
+                                 $scope.otros=false;
+                               
+                                 break;
+                            case 4:
+                                $scope.unidad=false;
+                                 $scope.servicio=false;
+                                 $scope.refacciones=false;
+                                 $scope.tramites=true;
+                                 $scope.otros=false;
+                                 break;
+                              case 5: 
+                                 $scope.unidad=false;
+                                 $scope.servicio=false;
+                                 $scope.refacciones=false;
+                                 $scope.tramites=false;
+                                 $scope.otros=true;
+                              
+                                break;
+
+                        }
+
+                };
+
+
+
 });

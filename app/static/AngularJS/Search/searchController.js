@@ -1,4 +1,4 @@
-registrationModule.controller("searchController", function($scope, $rootScope, $location, localStorageService, alertFactory, searchRepository) {
+﻿registrationModule.controller("searchController", function($scope, $rootScope, $location, localStorageService, alertFactory, searchRepository) {
 
     //Propiedades
     $rootScope.searchlevel = 0;
@@ -102,7 +102,7 @@ registrationModule.controller("searchController", function($scope, $rootScope, $
             //alert(fecha2);
 
             $('#btnBuscar').button('loading');
-            searchRepository.getFolios(folio, emp, suc, dep, tipoOrd, prov, fecha1, fecha2, idProceso, $rootScope.empleado.idUsuario, factura, numeroSerie, ordenServicio)
+            searchRepository.getFolios(folio, emp, suc, dep, tipoOrd, prov, fecha1, fecha2, idProceso, $rootScope.empleado.idUsuario, factura, numeroSerie, ordenServicio,$scope.identificaBusqueda)
                 .success(getFoliosSuccessCallback)
                 .error(errorCallBack);
         }
@@ -115,6 +115,26 @@ registrationModule.controller("searchController", function($scope, $rootScope, $
         ventana.opener = window.self;
         ventana.close();
     };
+
+
+   $scope.verDiccionario= function(tipo) {
+        $rootScope.tipodic="";
+       searchRepository.getDiccionario(tipo,$rootScope.idProceso).then(function(result) {
+           $rootScope.listaDic=result.data;
+            if (tipo==1){
+                 $rootScope.tipodic='Nodos';
+               $('#modalDiccionario').modal('show');
+            }
+            else{
+                $rootScope.tipodic='Status'
+                if($rootScope.proceso.Proc_Id==1)
+                     $('#modalDiccionariocxp').modal('show');
+                   if($rootScope.proceso.Proc_Id==2)
+                     $('#modalDiccionariocxc').modal('show');
+            }
+        });
+    }
+
 
     $scope.CloseGrid = function() {
         $("#finder").animate({
@@ -387,7 +407,10 @@ registrationModule.controller("searchController", function($scope, $rootScope, $
     };
 
     $scope.CargaOrden = function(fol) {
+	searchRepository.getNodoActual(fol.Folio_Operacion,$rootScope.idProceso).then(function(result){
 
+	var nodoAct=result.data[0].nodoactual;
+	var tipoFol=result.data[0].tipofolio;
         $('#closeMenu').click();
         $('#searchResultsO').modal('hide');
         $('#searchResultsCXC').modal('hide');
@@ -398,9 +421,9 @@ registrationModule.controller("searchController", function($scope, $rootScope, $
         $rootScope.proveedor = null; //? 0: $rootScope.proveedor.idProveedor);
         $rootScope.tipo = null; // ? -1: $rootScope.tipo.idtipoorden);
         $rootScope.folio = fol.Folio_Operacion; //LMS 29062016 resolvia la busqueda URL encimaba
-        $rootScope.fol_tipofolio = fol.tipofolio; //LQMA 30062016
+        $rootScope.fol_tipofolio =tipoFol; //LQMA 30062016 fol.tipofolio
         $rootScope.fol_Folio_Operacion = fol.Folio_Operacion; //LQMA 30062016
-        $rootScope.fol_nodoactual = fol.nodoactual; //LQMA 30062016
+        $rootScope.fol_nodoactual =nodoAct; //LQMA 30062016 fol.nodoactual
 
 
         $rootScope.fol_depto = fol.depto; //LMS 07092016
@@ -444,7 +467,7 @@ registrationModule.controller("searchController", function($scope, $rootScope, $
 
 
         }
-
+	});
 
     };
 

@@ -1,11 +1,11 @@
-<link href="../../css/nodo.css" rel="stylesheet" />
+﻿<link href="../../css/nodo.css" rel="stylesheet" />
 <div cg-busy="myPromise" ng-init="init()" resize>
     <div id="contenedor">
         <section id="header">
             <div class="col-xs-9" id="folio" ng-hide="idProceso==2">
                 {{ 'Orden de Compra: ' + expediente.folio + ' '}} <span class="glyphicon glyphicon-log-out" aria-hidden="true" ng-hide="expediente.alias == null" tooltip="{{ 'Orden plan piso: ' + expediente.alias }}"></span>
             </div>
-            <div class="col-xs-9" id="folio" ng-show="idProceso==2">
+            <div class="col-xs-9" ng-show="idProceso==2">
                 {{ 'Cotización: ' + expediente.folio + ' '}} <span class="glyphicon glyphicon-log-out" aria-hidden="true" ng-hide="expediente.alias == null" tooltip="{{ 'Orden plan piso: ' + expediente.alias }}"></span>
             </div>
             <div class="col-xs-3" ng-class="{'cancelado': expediente.estatusExpediente == 'Cancelado', 'estatus': expediente.estatusExpediente == 'En Proceso'}" id="estatus">
@@ -20,6 +20,11 @@
         </section>
         <section id="details">
             <div id="row data">
+		<div class="btnResumen" ng-show="idProceso==2">
+                   <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal" ng-click="resumenCotizacion()">
+                    <span class="" aria-hidden="true">Ver Resumen</span>  
+                  </button>
+                </div>
                 <div class="etiqueta" ng-show="idProceso==2">
                     Id Cliente
                 </div>
@@ -164,9 +169,17 @@
               <span class="glyphicon glyphicon-file" aria-hidden="true"></span> 
             </button>
           </div>                  
-        </div> -->        
+        </div> -->
+
+        <!--  -->
       </div>
+
+ <button type="button" class="btn btn-warning btn-xs" tooltip="Cargar documento"  ng-click="verOtrasFacturas()" 
+                    ng-show="showBtnOtrasFac && idProceso==2" >
+             Otras Facturas
+            </button>
     </div>
+
     <!-- Nodo 15 Proceso-->
     <div class="col-sm-7"  ng-if="(currentNode.id == 15)">
       <div class="panel panel-info">
@@ -189,8 +202,11 @@
             </tr>
           </tbody>
         </table>
+
       </div>
+       
     </div>
+
         <!--  -->
     <div class="col-sm-7">
       <h4>Alertas <span class="label label-default">{{ listaAlertas.length }}</span></h4>
@@ -211,15 +227,20 @@
     <div class="col-sm-7" ng-if="(currentNode.id == 14 && permisoCerrar.respuesta == 1)">    
         <button type="button" class="btn btn-primary pull-right" ng-click="CerrarNodo(currentNode.id)">Finalizar Expediente</button>        
     </div>
+  <div class="col-sm-7" ng-show="expediente.nombreSituacion == 'Cancelado'">
+     Status :  {{ expediente.nombreSituacion }}</br>
+     Usuario que Cancelo : {{ expediente.nombreUsuariomodifico }}
+   </div> 
+    <div class="col-sm-7" ng-show="expediente.nombreSituacion == 'Documentación Completa' ">
+     Status :  Confirmado </br>
+     Usuario que aplico : {{ expediente.nombreUsuariomodifico }}
+   </div> 
   </div>
   <br>
   <br>
 </section>
 </div>
 </div>
-<!-- Modal -->
-
-<!-- <loading></loading> -->
 
 <script type="text/javascript">
 function nodisponible() {

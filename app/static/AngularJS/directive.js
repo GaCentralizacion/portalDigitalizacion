@@ -8,9 +8,3 @@ registrationModule.directive('clickedDisable', function() {
         }
     };
 });
-registrationModule.directive("loading", function () {
-    return {
-        restrict: "E",
-        templateUrl:'AngularJS/Modals/Template/spinner.html'
-    };
-});

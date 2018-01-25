@@ -39,7 +39,7 @@ registrationModule.factory('searchRepository', function($http) {
         getUnidadApartada: function(folio) {
             return $http.get(searchUrl + '10|' + folio);
         },
-        getFolios: function(folio, idEmpresa, idSucursal, idDepartamento, tipoOrden, idProveedor, fecha1, fecha2, idProceso, idempleado, factura, numeroSerie, ordenServicio) {
+        getFolios: function(folio, idEmpresa, idSucursal, idDepartamento, tipoOrden, idProveedor, fecha1, fecha2, idProceso, idempleado, factura, numeroSerie, ordenServicio, identificaBusqueda) {
             return $http({
                 url: searchApiUrl + 'folios/',
                 method: "GET",
@@ -56,7 +56,34 @@ registrationModule.factory('searchRepository', function($http) {
                     idempleado: idempleado,
                     factura: factura,
                     numeroSerie: numeroSerie,
-                    ordenServicio: ordenServicio
+                    ordenServicio: ordenServicio,
+                    identificaBusqueda:identificaBusqueda
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        },
+  getDiccionario: function(tipo,proceso) {
+            return $http({
+                url: searchApiUrl + 'diccionario/',
+                method: "GET",
+                params: {
+                    tipo: tipo,
+                    proceso:proceso
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        },
+         getNodoActual: function(folio,idProceso) {
+            return $http({
+                url: searchApiUrl + 'nodoActual/',
+                method: "GET",
+                params: {
+                    folio: folio,
+                    idProceso: idProceso
                 },
                 headers: {
                     'Content-Type': 'application/json'

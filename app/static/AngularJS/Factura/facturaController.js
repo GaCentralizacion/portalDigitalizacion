@@ -12,7 +12,7 @@
     //LQMA 21062017 add sube comprobante recepcion
     $scope.subeComprobante = false;
     //LQMA 19072017 
-    $scope.cancelado = false;
+    $scope.cancelado = false;	
     //LQMA 04082017 verifica si usuario puede aplicar pago
     $scope.aplicaPago = false;
 
@@ -23,7 +23,7 @@
         getEmpleado();
         //getIdAprobacion();
         //LMS 09/05/2016 Obtengo lista de documentos
-        $scope.btnView = true;
+        $scope.btnView = false;
         getListaDocumentos();
 
         $scope.consultaInicial = 1;
@@ -37,26 +37,26 @@
         $scope.confirmaFactura();
 
         //LQMA add 21062017 verifica si se puede subir comprobante recepcion
-        $scope.verificaSubeComprobanteRecep();
+        $scope.verificaSubeComprobanteRecep();        
 
-        //LQMA add 04082017 verifica si puede aplicar pago
+	//LQMA add 04082017 verifica si puede aplicar pago
         $scope.verificaAplicaPago();
     };
 
     //LQMA add 21062017 verifica si el usuario puede subir comprobante
     $scope.verificaSubeComprobanteRecep = function() {
         facturaRepository.getValidaSubeCompRecep($rootScope.currentFolioFactura, $rootScope.currentEmployee)
-        facturaRepository.getValidaSubeCompRecep($rootScope.currentFolioFactura, $rootScope.currentEmployee)
+            facturaRepository.getValidaSubeCompRecep($rootScope.currentFolioFactura, $rootScope.currentEmployee)
             .success(function(data) {
                 //LQMA 17072017 cambio de estructura id,mensaje    
                 if (data[0].activo == 1) {
                     $scope.subeComprobante = true;
-                    alertFactory.success(data[0].mensaje);
-                } else {
+		    alertFactory.success(data[0].mensaje);	
+                } else{
                     //alertFactory.warning('El usuario actual no puede subir Comprobante de Recepción.');
                     alertFactory.warning(data[0].mensaje);
                     if (data[0].activo == 2) //LQMA add situacion orden cancelada
-                        $scope.cancelada = true;
+                            $scope.cancelada = true;
                 }
 
             })
@@ -69,14 +69,14 @@
     //LQMA add 04082017 verifica si el usuario puede aplicar pago
     $scope.verificaAplicaPago = function() {
         facturaRepository.getVerificaAplicaPago($rootScope.currentFolioFactura, $rootScope.currentEmployee)
-            .success(function(data) {
+            .success(function(data) {    
                 if (data[0].activo == 1) {
                     $scope.aplicaPago = true;
-                    alertFactory.success(data[0].mensaje);
-                } else {
+                    alertFactory.success(data[0].mensaje);  
+                } else{
                     alertFactory.warning(data[0].mensaje);
                     if (data[0].activo == 2) //LQMA add situacion orden cancelada
-                        $scope.cancelada = false;
+                            $scope.cancelada = false;
                 }
             })
             .error(function() {
@@ -85,17 +85,17 @@
     }
 
     //LQMA 04082017 aplicar pago externo
-    $scope.PagoExterno = function() {
+    $scope.PagoExterno = function() {        
         facturaRepository.getPagoExterno($rootScope.currentFolioFactura, $rootScope.currentEmployee) //se busca que exista recepcion factura (id = 15)
             .success(getPagoExternoSuccessCallback)
             .error(errorCallBack);
     };
 
     //LQMA 04082017 aplicar pago externo success
-    var getPagoExternoSuccessCallback = function(data, status, headers, config) {
+     var getPagoExternoSuccessCallback = function(data, status, headers, config) {
         if (data != null) {
-            if (data != '') {
-                alertFactory.success(data[0].mensaje);
+            if (data != '') {                
+                alertFactory.success(data[0].mensaje);  
             } else
                 alertFactory.warning('Debe subir el documento de Recepción.');
         } else
@@ -185,7 +185,7 @@
             ////LMS
             angular.forEach($scope.listaDocumentos, function(value, key) {
                 if (value.idDocumento == 20 && value.estatusDoc == 2) {
-                    $scope.btnView = false;
+                    $scope.btnView = true;
                 }
             });
             ////
@@ -298,9 +298,9 @@
             } else
             if (data == 1 && $scope.respuesta.opcion == 1) {
                 alertFactory.success('La factura Coincide');
-                nodoRepository.bitacoraAccion($rootScope.currentFolioFactura, 7, $rootScope.currentEmployee).then(function(result) {
+		nodoRepository.bitacoraAccion($rootScope.currentFolioFactura, 7, $rootScope.currentEmployee).then(function(result) {
                     $rootScope.cierraVentana();
-                });                
+                }); 
             } else
             if (data == 1 && $scope.respuesta.opcion != 1) {
                 alertFactory.warning('La factura No coincide y se desvincula correctamente');
@@ -308,7 +308,7 @@
             if (data == 0 && $scope.respuesta.opcion != 1) {
                 alertFactory.warning('La factura No coincide y No  se pudo desvincular');
             }
-            if (data > 1) { //LQMA 19072017
+	    if (data > 1) { //LQMA 19072017
                 alertFactory.error('Ocurrio un error al tratar de confirmar la factura.');
             }
         } else
