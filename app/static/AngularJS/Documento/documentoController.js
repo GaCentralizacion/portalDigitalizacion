@@ -268,13 +268,13 @@
    $rootScope.verPun=function(doc){
     
   
-    documentoRepository.getPdfArraysPun($rootScope.tipoPun,doc.factura, 0).then(function(d) {
+    documentoRepository.getPdfArraysPun($rootScope.tipoPun,doc.ucu_foliocotizacion, doc.numeroSerie).then(function(d) {
         arregloBytes = d.data.arrayBits.base64Binary;
 
               var pdf = URL.createObjectURL(utils.b64toBlob(arregloBytes, "application/pdf"))
                             var pdf_link = pdf;
                             var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
-                            var titulo ='Factura  ::' + doc.factura;
+                            var titulo ='Pedido';
                             var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
                             $.createModal({
                                 title: titulo,

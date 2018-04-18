@@ -25,6 +25,7 @@ var search = function(conf) {
 search.prototype.get_folios = function(req, res, next) {
 
     var self = this;
+    var stored = ( req.query.idempleado == 648) ? 'SEL_ORDENES_FILTROS_A_SP' : 'SEL_ORDENES_FILTROS_V2_SP';
 
     var params = [
         { name: 'folioorden', value: req.query.folio, type: self.model.types.STRING },
@@ -44,7 +45,7 @@ search.prototype.get_folios = function(req, res, next) {
     ];
 console.log('Inicie la busqueda', req.query.folio)
 //console.log(params)
-    this.model.query('SEL_ORDENES_FILTROS_V2_SP', params, function(error, result) {
+    this.model.query(stored, params, function(error, result) {
 	console.log('Termine la busqueda', req.query.folio);
         self.view.expositor(res, {
             error: error,
