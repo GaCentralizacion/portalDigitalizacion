@@ -689,11 +689,27 @@
             rptStructure.servicios = result.data[4];
             rptStructure.anticipos = result.data[5];
             rptStructure.facturas = result.data[6];
+            var importe = 0;
+            var iva = 0;
+            var total = 0;
+            var saldo = 0;
+            angular.forEach(rptStructure.facturas, function(value, key) {
+                importe = value.cargo + importe;
+                iva = value.iva + iva;
+                total = value.total + total;
+                saldo = value.saldo + saldo;
+            });
+            rptStructure.unidad.importe = importe;
+            rptStructure.unidad.iva = iva;
+            rptStructure.unidad.total = total;
+            rptStructure.unidad.saldo = saldo;
+            //console.log(importe,iva,total,saldo,'YUJU')
             var jsonData = {
                 "template": { "name": "ResumenCotizacion" },
                 "data": rptStructure
-            }
-            console.log('QUE MANDA',jsonData);
+            };
+
+            console.log('QUE MANDA', jsonData);
             $scope.generaPdf(jsonData);
         });
     };
