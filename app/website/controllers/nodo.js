@@ -126,10 +126,10 @@ nodo.prototype.get_cargos = function(req, res, next) {
 
     var params = [        
         { name: 'folio', value: req.query.folio, type: self.model.types.STRING },
-        { name: 'factura', value: req.query.factura, type: self.model.types.STRING }        
+        { name: 'idCotDet', value: req.query.idCotDet, type: self.model.types.STRING }        
     ];
 
-    this.model.query('SEL_RESUMEN_COT_CARGOS_SP', params, function(error, result) {
+    this.model.query('SEL_RESUMEN_FACTURAS_SP', params, function(error, result) {
         self.view.expositor(res, {
             error: error,
             result: result

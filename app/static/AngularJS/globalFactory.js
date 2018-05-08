@@ -26,12 +26,41 @@ registrationModule.factory('globalFactory', function() {
                 })
             }, 100)
         },
+        filtrosTablaOpcional: function(dataTable, title, displayLength) {
+            $('.' + dataTable).DataTable().clear();
+            $('.' + dataTable).DataTable().destroy();           
+            // $('.' + dataTable + ' thead th').each(function() {
+            //     var titulo = $(this).text()
+            //     $(this).html(titulo + '<br><span></span>')
+            // })
+            setTimeout(function() {
+                var table = $('.' + dataTable).DataTable({
+                    dom: '<"html5buttons"B>lTfgitp',
+                    'iDisplayLength': displayLength,
+                    buttons: [
+                    ],
+                    "ordering": false,
+                    "bLengthChange": false
+                })
+                table.columns().every(function() {
+                    var that = this
+
+                    $('input', this.header()).on('keyup change', function() {
+                        if (that.search() !== this.value) {
+                            that
+                                .search(this.value)
+                                .draw()
+                        }
+                    })
+                })
+            }, 100)
+        },
         filtrosTabla: function(dataTable, title, displayLength) {
             $('.' + dataTable).DataTable().clear();
             $('.' + dataTable).DataTable().destroy();           
             $('.' + dataTable + ' thead th').each(function() {
                 var titulo = $(this).text()
-                $(this).html(titulo + '<input type="text" class="filtro-tabla"/>')
+                $(this).html(titulo + '<input type="text" class="filtro-tabla" placeholder="Buscar..."/>')
             })
             setTimeout(function() {
                 var table = $('.' + dataTable).DataTable({

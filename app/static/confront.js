@@ -4,6 +4,7 @@ var global_settings = {
     //urlCORS: 'http://192.168.20.9/ApiCentralCXC',
     urlCORS: 'http://192.168.20.92/ApiCentralCXC',
     urlApiNode: 'http://192.168.20.92:3200',
+    //urlApiNode: 'http://localhost:3200',
     //urlApiNode: 'http://192.168.20.9:3200',
     //urlApiNode: 'http://192.168.20.89:3200',
     //urlCORS: 'http://192.168.20.9/ApiCentral',

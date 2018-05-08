@@ -104,13 +104,13 @@ registrationModule.factory('nodoRepository', function($http) {
             });
         },
         //--Resumen Cotización
-        getResumenCargo: function(factura,folio){
+        getResumenCargo: function(idCotDet,folio){
         return $http({
                 url: nodoApiUrl + 'cargos/',
                 method: "GET",
                 params: {
                     folio: folio,
-                    factura: factura
+                    idCotDet: idCotDet
                 },
                 headers: {
                     'Content-Type': 'application/json'

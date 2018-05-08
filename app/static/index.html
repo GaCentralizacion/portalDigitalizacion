@@ -676,6 +676,9 @@ function getName(){
 <div class="modal fade" id="resumen" ng-controller="nodoController">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
+      <div class="cargando" ng-show="loadingPdf">
+        <div class="loader_Completo"></div>
+      </div>
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title text-center"><strong> {{expedienteCotizacion.folio}} </strong></h4>         
@@ -706,7 +709,7 @@ function getName(){
           <div class="col-sm-12" ng-show="busquedaResumen"> 
               <div class="table-responsive">
                 <table class="table table-condensed table-hover cotizacionRecumen">
-                  <thead>
+                  <thead class="">
                     <tr>
                       <th>Número de Serie: </th>
                       <th>Factura: </th>
@@ -719,88 +722,193 @@ function getName(){
                     </tr>
                   </tbody>
                 </table>
-              </div>
-            </form>
-             
+              </div>             
           </div> 
           <div class="col-sm-12 space">
-            <div class="panel panel-info" ng-show="verResumen">
-              <div class="panel-heading" ng-click="pruebaMostrar()"><!--  puntero -->
-                <div class="row">
-                <p class="col-sm-6">{{cargos.tipoFactura}}: <strong> {{cargos.factura}}</strong></p>
-                <p class="col-sm-6">Número de Serie: <strong> {{cargos.numeroSerie}}</strong></p>
-                <p class="col-sm-6">Fecha: <strong> {{cargos.fecha}}</strong></p>
-                <p class="col-sm-6">Total: <strong> {{cargos.total | currency}}</strong></p>
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+              <div class="panel panel-info puntero" ng-show="verResumen"  ng-repeat="cargo in cargos">
+                <div class="panel-heading" class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo{{$index}}" aria-expanded="false" aria-controls="collapseTwo" ng-click="detalleFactura(cargo)"><!--  puntero  ng-click="pruebaMostrar()"-->
+                  <div class="row">
+                  <p class="col-sm-6">{{cargo.tipoFactura}}: <strong> {{cargo.factura}}</strong></p>
+                  <p class="col-sm-6">Número de Serie: <strong> {{cargo.numeroSerie}}</strong></p>
+                  <p class="col-sm-6">Fecha: <strong> {{cargo.fecha}}</strong></p>
+                  <p class="col-sm-6">Total: <strong> {{cargo.total | currency}}</strong></p>
+                  </div>
                 </div>
-              </div>
-              <!-- <div class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo"> -->
-              <div class="panel-body"> 
-                <div class="col-sm-12">
-                  <p class="title"><strong>Movimientos</strong></p>
-                  <table class="table table-condensed">
-                    <thead>
-                      <tr>
-                        <th>Documento</th>
-                        <th>Referencia</th>
-                        <th>Fecha</th>
-                        <th class="text-right">Cargo</th>
-                        <th class="text-right">Abono</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr ng-repeat="abono in abonos">
-                        <td> {{ abono.tipoPago }} </td> 
-                        <td> {{ abono.referencia}} </td>       
-                        <td> {{ abono.fecha }} </td>
-                        <td class="text-right"> {{ abono.cargo | currency }} </td>
-                        <td class="text-right"> {{ abono.abono | currency }} </td>
-                      </tr>
-                    </tbody>
-                    <tfoot>
-                      <td colspan="3" class="text-right"><strong>Total</strong></td>
-                      <td class="text-right">{{totalRCargos | currency }}</td>
-                      <td class="text-right">{{totalAbonos | currency }}</td>
-                    </tfoot>
-                  </table>
+                <div class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" id="collapseTwo{{$index}}">
+                  <div class="panel-body"> 
+                    <div class="col-sm-12" ng-show="mostrarDetalle">
+                      <p class="title"><strong>Movimientos</strong></p>
+                      <table class="table table-condensed">
+                        <thead>
+                          <tr>
+                            <th>Documento</th>
+                            <th>Referencia</th>
+                            <th>Fecha</th>
+                            <th class="text-right">Cargo</th>
+                            <th class="text-right">Abono</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="abono in abonos">
+                            <td> {{ abono.tipoPago }} </td> 
+                            <td> {{ abono.referencia}} </td>       
+                            <td> {{ abono.fecha }} </td>
+                            <td class="text-right"> {{ abono.cargo | currency }} </td>
+                            <td class="text-right"> {{ abono.abono | currency }} </td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <td colspan="3" class="text-right"><strong>Total</strong></td>
+                          <td class="text-right">{{totalRCargos | currency }}</td>
+                          <td class="text-right">{{totalAbonos | currency }}</td>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <div class="col-sm-12" ng-show="muestraAnticipo">
+                      <p class="title"><strong>Anticipos no aplicados</strong></p>
+                      <table class="table table-condensed">
+                        <thead>
+                          <tr>
+                            <th>Documento</th>
+                            <th>Fecha</th>
+                            <th class="text-right">Importe</th>
+                            <th class="text-right">Saldo</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="anticipo in anticipos">
+                            <td> {{ anticipo.tipoPago }} </td>        
+                            <td> {{ anticipo.fecha }} </td>
+                            <td class="text-right"> {{ anticipo.abono | currency }} </td>
+                            <td class="text-right"> {{ anticipo.saldo | currency }} </td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <td colspan="3" class="text-right"><strong>Total</strong></td>
+                          <td class="text-right">{{totalAnticipos | currency }}</td>
+                        </tfoot>
+                      </table>
+                    </div>  
+                  </div>
                 </div>
-                <div class="col-sm-12" ng-show="muestraAnticipo">
-                  <p class="title"><strong>Anticipos no aplicados</strong></p>
-                  <table class="table table-condensed">
-                    <thead>
-                      <tr>
-                        <th>Documento</th>
-                        <th>Fecha</th>
-                        <th class="text-right">Importe</th>
-                        <th class="text-right">Saldo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr ng-repeat="anticipo in anticipos">
-                        <td> {{ anticipo.tipoPago }} </td>        
-                        <td> {{ anticipo.fecha }} </td>
-                        <td class="text-right"> {{ anticipo.abono | currency }} </td>
-                        <td class="text-right"> {{ anticipo.saldo | currency }} </td>
-                      </tr>
-                    </tbody>
-                    <tfoot>
-                      <td colspan="3" class="text-right"><strong>Total</strong></td>
-                      <td class="text-right">{{totalAnticipos | currency }}</td>
-                    </tfoot>
-                  </table>
-                </div>  
-              </div>
-            <!-- </div> -->
-            </div>                     
+              </div>  
+            </div>
           </div>    
         </div>      
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" ng-click="imprimirResumen(expedienteCotizacion.folio)" ng-show="mostrarImprimir">Imprimir</button>
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="limpiaModal()">Salir</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal resumen de la cotizacion -->
-
+<!-- BEGIN -->
+<!-- Modal cotización -->
+<div class="modal fade" id="cotizacion" ng-controller="documentoController">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="cargando" ng-show="loadingPdf">
+        <div class="loader_Completo"></div>
+      </div>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <!-- <div class="row">
+          <div class="col-sm-12">
+              <div class="panel-body fondoInfo">
+                <div class="col-sm-6">
+                  <label>Id Cliente: </label><span> {{encabezadoCot[0].ucu_idcliente}}</span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Cliente: </label><span> {{encabezadoCot[0].NombreCliente}}</span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Folio Cotización: </label><span><strong>   {{encabezadoCot[0].ucu_foliocotizacion}}</strong></span>
+                </div>
+                <div class="col-sm-6">
+                  <label>R.F.C.: </label><span> {{encabezadoCot[0].per_rfc}}</span>
+                </div>
+                <div class="col-sm-12">
+                  <label>Dirección: </label><span> {{encabezadoCot[0].Direccion}}</span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Tipo Cotización: </label><span> {{encabezadoCot[0].dep_nombre}}</span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Telefóno: </label><span> {{encabezadoCot[0].tel_numero}}</span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Estatus: </label><span> {{encabezadoCot[0].cec_descripcion}}</span>
+                </div>
+                <div class="col-sm-6">
+                  <label>Fecha: </label><span> {{encabezadoCot[0].fecha}}</span>
+                </div>
+              </div>
+          </div>
+        </div> -->
+        <h4 class="modal-title text-center"><strong> {{encabezadoCot[0].ucu_foliocotizacion}} </strong></h4>         
+      </div>
+      <div class="modal-body">        
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-condensed table-hover">
+                  <thead>
+                    <tr>
+                      <th>Modulo</th>
+                      <th class="text-center">Cantidad</th>
+                      <th class="text-right">Precio</th>
+                      <th class="text-right">Iva</th>
+                      <th class="text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="resumencotiza in resumenCotizaciones">
+                      <td> {{ resumencotiza.MODULO }} </td>        
+                      <td class="text-center"> {{ resumencotiza.CANTIDAD }} </td>
+                      <td class="text-right"> {{ resumencotiza.PRECIO | currency }} </td>
+                      <td class="text-right"> {{ resumencotiza.IVA | currency}} </td>
+                      <td class="text-right"> {{ resumencotiza.TOTAL | currency }} </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+          <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-condensed table-hover cotizacionesPdf">
+                  <thead>
+                    <tr>
+                      <th>Clave</th>
+                      <th>Modelo</th>
+                      <th>Número de Serie: <input type="text"/></th>
+                      <th class="text-right">Total</th>
+                      <th class="text-right">Iva</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="cotizacion in cotizaciones" ng-click ="getCotizacion(cotizacion)" class="puntero">
+                      <td> {{ cotizacion.clave }} </td>        
+                      <td> {{ cotizacion.modelo }} </td>
+                      <td> {{ cotizacion.numeroSerie }} </td>
+                      <td class="text-right"> {{ cotizacion.total | currency}} </td>
+                      <td class="text-right"> {{ cotizacion.iva | currency }} </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        </div>     
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" ng-click="imprimir()">Imprimir</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="limpiaModal()">Salir</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal cotizacion -->
+<!-- END -->
 
 <div class="modal fade" id="modalOtrasFacturas" ng-controller="nodoController">
   <div class="modal-dialog modal-lg">

@@ -1,4 +1,4 @@
-﻿registrationModule.controller("documentoController", function($scope, $rootScope, utils, localStorageService, alertFactory, documentoRepository, facturaRepository,nodoRepository,globalFactory) {
+﻿registrationModule.controller("documentoController", function($scope, $rootScope, utils, localStorageService, alertFactory, documentoRepository, facturaRepository, nodoRepository, globalFactory) {
 
     //Propiedades
     //Desconfiguramos el clic izquierdo en el frame contenedor de documento
@@ -71,10 +71,9 @@
                             $scope.obtengoModalArrays(result, titulo, 'Póliza');
 
                         });
-                    }else if(doc.idDocumento == 64 || doc.idDocumento == 68 || doc.idDocumento == 67){
+                    } else if (doc.idDocumento == 64 || doc.idDocumento == 68 || doc.idDocumento == 67) {
                         $scope.getPolizas(doc);
-                    }  
-                    else {
+                    } else {
                         //Mando a llamar al WebService
                         documentoRepository.getPdf(doc.tipo, doc.folio, doc.idNodo).then(function(d) {
                             //Creo la URL
@@ -220,19 +219,34 @@
 
                         }
 
-                    }else if(doc.tipo=='PUN'){
+                    } else if (doc.tipo == 'PUN') {
                         //Mando a llamar al WebService 
-                         //  documentoRepository.getPdfArrays(doc.tipo, doc.folio, 0).then(function(d) {
-                          // $scope.obtengoModalArraysCxc(d, doc, iframe);
-                     //  });
-                   //   alert(1);
-  			$rootScope.tipoPun=doc.tipo;
-                    	  nodoRepository.getEncabezadoResumen($rootScope.folio).then(function(result){
-                                          $rootScope.encabezadoResumenPun = result.data;
-                                          $('#modalPun').modal('show');
-                                                globalFactory.filtrosTabla("unidadesPun", "Unidades", 5);
-                                    });
-                    }else{
+                        //  documentoRepository.getPdfArrays(doc.tipo, doc.folio, 0).then(function(d) {
+                        // $scope.obtengoModalArraysCxc(d, doc, iframe);
+                        //  });
+                        //   alert(1);
+                        $rootScope.tipoPun = doc.tipo;
+                        nodoRepository.getEncabezadoResumen($rootScope.folio).then(function(result) {
+                            $rootScope.encabezadoResumenPun = result.data;
+                            $('#modalPun').modal('show');
+                            globalFactory.filtrosTabla("unidadesPun", "Unidades", 5);
+                        });
+                    } else if (doc.idDocumento == 25) {
+                        $scope.documento = doc;
+                        documentoRepository.getResumenCotiza($rootScope.folio).then(function(result) {
+                            console.log('RESUMEN COTIZA', result.data);
+                            $rootScope.resumenCotizaciones = result.data;
+                        });
+                        documentoRepository.getCotizaciones(doc.folio).then(function(result) {
+                            $('#cotizacion').modal('show');
+                            $rootScope.encabezadoCot = result.data[0];
+                            $rootScope.cotizaciones = result.data[1];
+                            globalFactory.filtrosTablaOpcional("cotizacionesPdf", "Cotizaciones", 5);
+                            console.log('Si traje las cotizaciones', $rootScope.encabezadoCot, $rootScope.cotizaciones)
+                        });
+                        //console.log('Entre al documento de Cotizacion')
+                        $('#cotizacion').modal('show');
+                    } else {
 
 
                         //Mando a llamar al WebService
@@ -263,28 +277,56 @@
 
         } //Fin de Proceso 2
     };
+    // --------------------------------------
+    // --Obtengo la cotizacion BEGIN
+    // --------------------------------------
+    $rootScope.getCotizacion = function(cotizacion) {
+        $rootScope.loadingPdf = true;
+        //Mando a llamar al WebService
+        documentoRepository.getPdfNode($scope.documento.tipo, $scope.documento.folio, cotizacion.idDetalleCotizacion).then(function(d) {
+            //Creo la URL
+            var pdf = URL.createObjectURL(utils.b64toBlob(d.data.arrayBits, "application/pdf"))
+            var pdf_link = pdf;
+            var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
+            var titulo = $scope.documento.folio + ' :: ' + $scope.documento.descripcion;
+            //Mando a llamar la URL desde el div sustituyendo el pdf
+            /////////  $("<object id='pdfDisplay' data='" + pdf + "' width='100%' height='400px' >").appendTo('#pdfContent');
+            var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
+            $rootScope.loadingPdf = false;
+            $.createModal({
+                title: titulo,
+                message: iframe,
+                closeButton: false,
+                scrollable: false
+            });
+            /////////$scope.loadingOrder = false; //Animacion
+        });
+
+    };
+    // --------------------------------------
+    // --Obtengo la cotizacion END
+    // --------------------------------------
+
+    $rootScope.verPun = function(doc) {
 
 
-   $rootScope.verPun=function(doc){
-    
-  
-    documentoRepository.getPdfArraysPun($rootScope.tipoPun,doc.ucu_foliocotizacion, doc.numeroSerie).then(function(d) {
-        arregloBytes = d.data.arrayBits.base64Binary;
+        documentoRepository.getPdfArraysPun($rootScope.tipoPun, doc.ucu_foliocotizacion, doc.numeroSerie).then(function(d) {
+            arregloBytes = d.data.arrayBits.base64Binary;
 
-              var pdf = URL.createObjectURL(utils.b64toBlob(arregloBytes, "application/pdf"))
-                            var pdf_link = pdf;
-                            var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
-                            var titulo ='Pedido';
-                            var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
-                            $.createModal({
-                                title: titulo,
-                                message: iframe,
-                                closeButton: false,
-                                scrollable: false
-                            });
-                     });
+            var pdf = URL.createObjectURL(utils.b64toBlob(arregloBytes, "application/pdf"))
+            var pdf_link = pdf;
+            var typeAplication = $rootScope.obtieneTypeAplication(pdf_link);
+            var titulo = 'Pedido';
+            var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + pdf + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + pdf + '">to the PDF!</a></p></object> </div>';
+            $.createModal({
+                title: titulo,
+                message: iframe,
+                closeButton: false,
+                scrollable: false
+            });
+        });
 
-};
+    };
 
     $rootScope.obtieneTypeAplication = function(ruta) {
 
@@ -407,14 +449,14 @@
     $scope.ShowCargar = function(doc) {
         if (doc.idDocumento == 15 && window.location.pathname != '/factura') {
             location.href = '/factura?id=' + doc.folio + '&employee=' + $rootScope.currentEmployee + '&perfil=' + $rootScope.empleado.idPerfil + '&proceso=' + doc.idProceso;
-        }else if (doc.idDocumento == 67) {
+        } else if (doc.idDocumento == 67) {
             documentoRepository.getPermisos($rootScope.currentEmployee, 8).then(function(result) {
                 var permisoUsuario = result.data[0];
                 if (permisoUsuario.respuesta == 1) {
                     $('#frameUpload').attr('src', '/uploader');
                     $('#modalUpload').modal('show');
                     $rootScope.currentUpload = doc;
-                }else if(permisoUsuario.respuesta == 0){
+                } else if (permisoUsuario.respuesta == 0) {
                     alertFactory.warning('El usuario no tiene permisos para subir documento')
                 }
             });
@@ -573,8 +615,8 @@
     $scope.muestraFactura = function(id) {
 
     };
-    
- $scope.obtengoModalArraysCxc = function(arrays, titulo, nombreTab) {
+
+    $scope.obtengoModalArraysCxc = function(arrays, titulo, nombreTab) {
         $scope.arregloBytes = arrays.data;
         var iframe = '<div id="hideFullContent"><div><ul class="nav nav-tabs"> ';
         $scope.pdf = [];
@@ -589,9 +631,9 @@
 
         angular.forEach($scope.pdf, function(value, key) {
             if (key == 0) {
-                iframe = iframe + '<li class="active"><a data-toggle="tab" href="#divMenu' + key + '" target="_self">Unidad ' +(key + 1) + ' </a></li>';
+                iframe = iframe + '<li class="active"><a data-toggle="tab" href="#divMenu' + key + '" target="_self">Unidad ' + (key + 1) + ' </a></li>';
             } else {
-                iframe = iframe + '<li><a data-toggle="tab" href="#divMenu' + key + '" target="_self">Unidad ' +(key + 1) + ' </a></li>';
+                iframe = iframe + '<li><a data-toggle="tab" href="#divMenu' + key + '" target="_self">Unidad ' + (key + 1) + ' </a></li>';
             }
         });
 
@@ -617,9 +659,61 @@
 
 
     $scope.getPolizas = function(doc) {
-        documentoRepository.getPdfArrays(doc.tipo, doc.folio, doc.idNodo).then(function(result) {           
+        documentoRepository.getPdfArrays(doc.tipo, doc.folio, doc.idNodo).then(function(result) {
             $scope.obtengoModalArrays(result, doc.nombreDocumento, doc.nombreDocumento);
 
+        });
+    };
+    $rootScope.imprimir = function() {
+        $rootScope.loadingPdf = true;
+        var rptStructure = {};
+        rptStructure.resumenCotizaciones = $rootScope.resumenCotizaciones;
+        rptStructure.flotilla = $rootScope.cotizaciones;
+        var jsonData = {
+            "template": { "name": "encabezadoResumenCot" },
+            "data": rptStructure
+        }
+        console.log(jsonData);
+        $scope.generaPdf(jsonData);
+
+    };
+    $rootScope.imprimirResumen = function(folio) {
+        $rootScope.loadingPdf = true;
+        var rptStructure = {};
+        documentoRepository.getResumenGeneral($rootScope.idDetCot, folio).then(function(result) {
+            console.log('ResumenJSREPORT', result.data)
+            rptStructure.unidad = result.data[0][0];
+            rptStructure.accesorios = result.data[1];
+            rptStructure.tramites = result.data[2];
+            rptStructure.otros = result.data[3];
+            rptStructure.servicios = result.data[4];
+            rptStructure.anticipos = result.data[5];
+            rptStructure.facturas = result.data[6];
+            var jsonData = {
+                "template": { "name": "ResumenCotizacion" },
+                "data": rptStructure
+            }
+            console.log('QUE MANDA',jsonData);
+            $scope.generaPdf(jsonData);
+        });
+    };
+    $scope.generaPdf = function(jsonData) {
+        documentoRepository.getReportePdf(jsonData).then(function(result) {
+            console.log('MI PDF')
+
+            var file = new Blob([result.data], { type: 'application/pdf' });
+            var fileURL = URL.createObjectURL(file);
+            //
+            var typeAplication = 'application/pdf';
+            var titulo = 'Resumen Cotización';
+            var iframe = '<div id="hideFullContent"><div onclick="nodisponible()" ng-controller="documentoController"> </div> <object id="ifDocument" data="' + fileURL + '" type="' + typeAplication + '" width="100%" height="100%"><p>Alternative text - include a link <a href="' + fileURL + '">to the PDF!</a></p></object> </div>';
+            $rootScope.loadingPdf = false;
+            $.createModal({
+                title: titulo,
+                message: iframe,
+                closeButton: false,
+                scrollable: false
+            });
         });
     };
 
