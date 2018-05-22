@@ -58,7 +58,13 @@
 
         //LQMA 21012016 se agrego funcionalidad de busqueda de folios    $rootScope.division == null && 
         if ($rootScope.empresa == null && $rootScope.agencia == null && $rootScope.departamento == null && ($scope.folioBusca == null || $scope.folioBusca == '') && $rootScope.proveedor == null && $rootScope.tipo == null && $scope.dt1 == null && $scope.dt2 == null && $rootScope.tipoProceso == null) {
-            alertFactory.warning('Debe proporcionar al menos alguno de los filtros de busqueda.');
+            alertFactory.warning('Debe proporcionar al menos Proceso, División, Empresa y Agencia.');
+        } else if ($rootScope.division == null) {
+            alertFactory.warning('Debe proporcionar División, Empresa y Agencia.');
+        } else if ($rootScope.empresa == null) {
+            alertFactory.warning('Debe proporcionar Empresa y Agencia.');
+        } else if($rootScope.agencia == null){
+            alertFactory.warning('Debe proporcionar Agencia.');
         } else {
             //------------------------------
             //Dependiendo del tipo de busqueda por folio,factura,numero de serie o orden de servicio se asignan los valores 
@@ -102,7 +108,7 @@
             //alert(fecha2);
 
             $('#btnBuscar').button('loading');
-            searchRepository.getFolios(folio, emp, suc, dep, tipoOrd, prov, fecha1, fecha2, idProceso, $rootScope.empleado.idUsuario, factura, numeroSerie, ordenServicio,$scope.identificaBusqueda)
+            searchRepository.getFolios(folio, emp, suc, dep, tipoOrd, prov, fecha1, fecha2, idProceso, $rootScope.empleado.idUsuario, factura, numeroSerie, ordenServicio, $scope.identificaBusqueda)
                 .success(getFoliosSuccessCallback)
                 .error(errorCallBack);
         }
@@ -117,20 +123,19 @@
     };
 
 
-   $scope.verDiccionario= function(tipo) {
-        $rootScope.tipodic="";
-       searchRepository.getDiccionario(tipo,$rootScope.idProceso).then(function(result) {
-           $rootScope.listaDic=result.data;
-            if (tipo==1){
-                 $rootScope.tipodic='Nodos';
-               $('#modalDiccionario').modal('show');
-            }
-            else{
-                $rootScope.tipodic='Status'
-                if($rootScope.proceso.Proc_Id==1)
-                     $('#modalDiccionariocxp').modal('show');
-                   if($rootScope.proceso.Proc_Id==2)
-                     $('#modalDiccionariocxc').modal('show');
+    $scope.verDiccionario = function(tipo) {
+        $rootScope.tipodic = "";
+        searchRepository.getDiccionario(tipo, $rootScope.idProceso).then(function(result) {
+            $rootScope.listaDic = result.data;
+            if (tipo == 1) {
+                $rootScope.tipodic = 'Nodos';
+                $('#modalDiccionario').modal('show');
+            } else {
+                $rootScope.tipodic = 'Status'
+                if ($rootScope.proceso.Proc_Id == 1)
+                    $('#modalDiccionariocxp').modal('show');
+                if ($rootScope.proceso.Proc_Id == 2)
+                    $('#modalDiccionariocxc').modal('show');
             }
         });
     }
@@ -190,6 +195,7 @@
 
     $scope.ClearProceso = function() {
         $rootScope.proceso = null;
+        $rootScope.division = null;
         $rootScope.searchlevel = 0;
         $rootScope.tipoProceso = null;
         $rootScope.empresa = null;
@@ -407,67 +413,67 @@
     };
 
     $scope.CargaOrden = function(fol) {
-	searchRepository.getNodoActual(fol.Folio_Operacion,$rootScope.idProceso).then(function(result){
+        searchRepository.getNodoActual(fol.Folio_Operacion, $rootScope.idProceso).then(function(result) {
 
-	var nodoAct=result.data[0].nodoactual;
-	var tipoFol=result.data[0].tipofolio;
-        $('#closeMenu').click();
-        $('#searchResultsO').modal('hide');
-        $('#searchResultsCXC').modal('hide');
-        $rootScope.empresa = null; // ? 0 : $rootScope.empresa.idEmpresa);
-        $rootScope.agencia = null; // ? 0 : $rootScope.agencia.idSucursal);
-        $rootScope.departamento = null; // ? 0: $rootScope.departamento.idDepartamento);
-        $scope.folioBusca = ''; // ? '': $scope.folioBusca);
-        $rootScope.proveedor = null; //? 0: $rootScope.proveedor.idProveedor);
-        $rootScope.tipo = null; // ? -1: $rootScope.tipo.idtipoorden);
-        $rootScope.folio = fol.Folio_Operacion; //LMS 29062016 resolvia la busqueda URL encimaba
-        $rootScope.fol_tipofolio =tipoFol; //LQMA 30062016 fol.tipofolio
-        $rootScope.fol_Folio_Operacion = fol.Folio_Operacion; //LQMA 30062016
-        $rootScope.fol_nodoactual =nodoAct; //LQMA 30062016 fol.nodoactual
+            var nodoAct = result.data[0].nodoactual;
+            var tipoFol = result.data[0].tipofolio;
+            $('#closeMenu').click();
+            $('#searchResultsO').modal('hide');
+            $('#searchResultsCXC').modal('hide');
+            $rootScope.empresa = null; // ? 0 : $rootScope.empresa.idEmpresa);
+            $rootScope.agencia = null; // ? 0 : $rootScope.agencia.idSucursal);
+            $rootScope.departamento = null; // ? 0: $rootScope.departamento.idDepartamento);
+            $scope.folioBusca = ''; // ? '': $scope.folioBusca);
+            $rootScope.proveedor = null; //? 0: $rootScope.proveedor.idProveedor);
+            $rootScope.tipo = null; // ? -1: $rootScope.tipo.idtipoorden);
+            $rootScope.folio = fol.Folio_Operacion; //LMS 29062016 resolvia la busqueda URL encimaba
+            $rootScope.fol_tipofolio = tipoFol; //LQMA 30062016 fol.tipofolio
+            $rootScope.fol_Folio_Operacion = fol.Folio_Operacion; //LQMA 30062016
+            $rootScope.fol_nodoactual = nodoAct; //LQMA 30062016 fol.nodoactual
 
 
-        $rootScope.fol_depto = fol.depto; //LMS 07092016
-        $rootScope.esServicio = 0;
+            $rootScope.fol_depto = fol.depto; //LMS 07092016
+            $rootScope.esServicio = 0;
 
-        //Dependiendo el Tipo de Proceso CXC o CXP sera la acción CXP=1 y CXC=2 
-        if ($rootScope.tipoProceso == 1) {
-            $rootScope.CargaUsuarioCXP($rootScope.fol_Folio_Operacion);
-            $rootScope.estilo = {}
-            //Si es una orden de Servicio la navegacion es diferente
-            if ($rootScope.fol_depto == 'SERVICIO' || $rootScope.fol_depto == 'Servicio' || $rootScope.fol_depto == 'Otros Conceptos' || $rootScope.fol_depto == 'OTROS CONCEPTOS' && $rootScope.fol_tipofolio == 1) {
-                //alert('Es Servicio');
-                $rootScope.esServicio = 1;
-                $rootScope.navBusquedaServicio($rootScope.fol_tipofolio, $rootScope.fol_nodoactual, $rootScope.fol_Folio_Operacion, $rootScope.tipoProceso);
-            } else {
-                //Si es una Factura de Servicio
-                if ($rootScope.fol_depto == 'SERVICIO' || $rootScope.fol_depto == 'Servicio' || $rootScope.fol_depto == 'Otros Conceptos' || $rootScope.fol_depto == 'OTROS CONCEPTOS' && $rootScope.fol_tipofolio == 5) {
-                    //alert('Es una Factura de Servicio');
+            //Dependiendo el Tipo de Proceso CXC o CXP sera la acción CXP=1 y CXC=2 
+            if ($rootScope.tipoProceso == 1) {
+                $rootScope.CargaUsuarioCXP($rootScope.fol_Folio_Operacion);
+                $rootScope.estilo = {}
+                //Si es una orden de Servicio la navegacion es diferente
+                if ($rootScope.fol_depto == 'SERVICIO' || $rootScope.fol_depto == 'Servicio' || $rootScope.fol_depto == 'Otros Conceptos' || $rootScope.fol_depto == 'OTROS CONCEPTOS' && $rootScope.fol_tipofolio == 1) {
+                    //alert('Es Servicio');
                     $rootScope.esServicio = 1;
-                    $rootScope.CargaEmpleado($rootScope.fol_Folio_Operacion, $rootScope.tipoProceso);
+                    $rootScope.navBusquedaServicio($rootScope.fol_tipofolio, $rootScope.fol_nodoactual, $rootScope.fol_Folio_Operacion, $rootScope.tipoProceso);
                 } else {
-                    //Si es una orden de Refacciones y es Planta
-                    //alert('Validar si es Planta o No');
-                    searchRepository.getIsPlanta(fol.Folio_Operacion) //LQMA 30062016
-                        .success(getIsPlantaSuccessCallback)
-                        .error(errorCallBack);
+                    //Si es una Factura de Servicio
+                    if ($rootScope.fol_depto == 'SERVICIO' || $rootScope.fol_depto == 'Servicio' || $rootScope.fol_depto == 'Otros Conceptos' || $rootScope.fol_depto == 'OTROS CONCEPTOS' && $rootScope.fol_tipofolio == 5) {
+                        //alert('Es una Factura de Servicio');
+                        $rootScope.esServicio = 1;
+                        $rootScope.CargaEmpleado($rootScope.fol_Folio_Operacion, $rootScope.tipoProceso);
+                    } else {
+                        //Si es una orden de Refacciones y es Planta
+                        //alert('Validar si es Planta o No');
+                        searchRepository.getIsPlanta(fol.Folio_Operacion) //LQMA 30062016
+                            .success(getIsPlantaSuccessCallback)
+                            .error(errorCallBack);
+                    }
                 }
+                $rootScope.VerificaUsuario($rootScope.empleado.idUsuario, $rootScope.fol_Folio_Operacion);
+            } else if ($rootScope.tipoProceso == 2) {
+                $rootScope.estilo = {
+                    "color": "white",
+                    "background-color": "#4e9394",
+                    "border-color": "#4e9394"
+                }
+
+                $rootScope.CargaEmpleado($rootScope.fol_Folio_Operacion, $rootScope.tipoProceso);
+                //$rootScope.navBusquedaServicio($rootScope.fol_tipofolio, $rootScope.fol_nodoactual, $rootScope.fol_Folio_Operacion);
+                //Obtengo los datos del usuario que genero la orden de compra 
+                $rootScope.getUnidadApartada($rootScope.fol_Folio_Operacion);
+
+
             }
-            $rootScope.VerificaUsuario($rootScope.empleado.idUsuario, $rootScope.fol_Folio_Operacion);
-        } else if ($rootScope.tipoProceso == 2) {
-            $rootScope.estilo = {
-                "color": "white",
-                "background-color": "#4e9394",
-                "border-color": "#4e9394"
-            }
-
-            $rootScope.CargaEmpleado($rootScope.fol_Folio_Operacion, $rootScope.tipoProceso);
-            //$rootScope.navBusquedaServicio($rootScope.fol_tipofolio, $rootScope.fol_nodoactual, $rootScope.fol_Folio_Operacion);
-            //Obtengo los datos del usuario que genero la orden de compra 
-            $rootScope.getUnidadApartada($rootScope.fol_Folio_Operacion);
-
-
-        }
-	});
+        });
 
     };
 
