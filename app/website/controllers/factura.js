@@ -29,7 +29,7 @@ Factura.prototype.get_aplicaPagoExterno = function(req, res, next) {
 
     var params = [
         { name: 'idUsuario', value: req.query.idUsuario, type: self.model.types.INT },
-        { name: 'folio', value: req.query.folio, type: self.model.types.STRING }        
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING }
     ];
 
     this.model.query('INS_APLICA_PAGO_EX_SP', params, function(error, result) {
@@ -45,7 +45,7 @@ Factura.prototype.get_empleado = function(req, res, next) {
     var self = this;
 
     var params = [
-        { name: 'idEmpleado', value: req.query.idEmpleado, type: self.model.types.INT } 
+        { name: 'idEmpleado', value: req.query.idEmpleado, type: self.model.types.INT }
     ];
 
     this.model.query('SEL_EMPLEADO_SP', params, function(error, result) {
@@ -61,11 +61,28 @@ Factura.prototype.get_verificaPagoExterno = function(req, res, next) {
     var self = this;
 
     var params = [
-                  { name: 'idUsuario', value: req.query.idUsuario, type: self.model.types.INT },
-                  { name: 'folio', value: req.query.folio, type: self.model.types.STRING }
+        { name: 'idUsuario', value: req.query.idUsuario, type: self.model.types.INT },
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING }
     ];
 
     this.model.query('SEL_APLICA_PAGO_EX_SP', params, function(error, result) {
+        self.view.expositor(res, {
+            error: error,
+            result: result
+        });
+    });
+};
+
+Factura.prototype.get_ValidaSubeCompRecep = function(req, res, next) {
+    console.log('ENTRE en EL SPPP')
+    var self = this;
+
+    var params = [
+        { name: 'idUsuario', value: req.query.idUsuario, type: self.model.types.INT },
+        { name: 'folio', value: req.query.folio, type: self.model.types.STRING }
+    ];
+
+    this.model.query('SEL_CARGA_ARCHIVO_RECEPCION_SP', params, function(error, result) {
         self.view.expositor(res, {
             error: error,
             result: result
